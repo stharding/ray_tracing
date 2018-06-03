@@ -68,10 +68,10 @@ cdef class Vec3:
         return Vec3.__truediv__(first, second)
 
     def __matmul__(first, second):
-        return first.x * second.x + first.y * second.y + first.z * second.z
+        return Vec3.dot(first, second)
 
-    cpdef Vec3 dot(self, other):
-        return Vec3.__matmul__(self, other)
+    cpdef float dot(self, other):
+        return self.x * other.x + self.y * other.y + self.z * other.z
 
     cpdef Vec3 cross(self, other):
         return Vec3(

@@ -18,12 +18,21 @@ cdef class Ray:
             '(' + repr(self.A) + ', ' + repr(self.B) + ')'
         )
 
+cpdef bint hit_sphere(Vec3 center, float radius, Ray r):
+    cdef Vec3 oc = r.origin() - center
+    cdef float a = r.direction().dot(r.direction())
+    cdef float b = 2 * oc.dot(r.direction())
+    cdef float c = oc.dot(oc) - radius ** 2
+    cdef float discriminant = b ** 2 - 4 * a * c
+    return discriminant > 0
+
 
 cpdef Vec3 color(Ray r):
+    if hit_sphere(Vec3(0, 0, -1), 0.5, r):
+        return Vec3(1, 0, 0)
     cdef Vec3 unit_direction = r.direction().unit_vector()
     cdef float t = 0.5 * (unit_direction.y + 1)
     return (1 - t) * Vec3(1, 1, 1) + t * Vec3(0.5, 0.7, 1)
-
 
 cpdef write_background(int width, int height):
     cdef float u, v
