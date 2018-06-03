@@ -18,23 +18,30 @@ cdef class Ray:
             '(' + repr(self.A) + ', ' + repr(self.B) + ')'
         )
 
-cpdef bint hit_sphere(Vec3 center, float radius, Ray r):
+cpdef float hit_sphere(Vec3 center, float radius, Ray r):
     cdef Vec3 oc = r.origin() - center
     cdef float a = r.direction().dot(r.direction())
     cdef float b = 2 * oc.dot(r.direction())
     cdef float c = oc.dot(oc) - radius ** 2
     cdef float discriminant = b ** 2 - 4 * a * c
-    return discriminant > 0
+    if discriminant < 0:
+        return -1
+    return (-b - discriminant**0.5) / (2 * a)
 
 
-cpdef Vec3 color(Ray r):
-    if hit_sphere(Vec3(0, 0, -1), 0.5, r):
-        return Vec3(1, 0, 0)
-    cdef Vec3 unit_direction = r.direction().unit_vector()
-    cdef float t = 0.5 * (unit_direction.y + 1)
-    return (1 - t) * Vec3(1, 1, 1) + t * Vec3(0.5, 0.7, 1)
+cpdef Vec3 color(Ray r, Shape shape):
+    cdef HitRecord rec = HitRecord()
+    cdef Vec3 unit_direction
+    cdef float t
 
-cpdef write_background(int width, int height):
+    if shape.hit(r, 0, FLT_MAX, rec):
+        return 0.5 * Vec3(rec.normal.x + 1, rec.normal.y + 1, rec.normal.z + 1)
+    else:
+        unit_direction = r.direction().unit_vector()
+        t = 0.5 * (unit_direction.y + 1)
+        return (1 - t) * Vec3(1, 1, 1) + t * Vec3(0.5, 0.7, 1)
+
+cpdef render(int width, int height):
     cdef float u, v
     cdef Ray r
     cdef Vec3 lower_left = Vec3(-2, -1, -1)
@@ -43,6 +50,11 @@ cpdef write_background(int width, int height):
     cdef Vec3 origin = Vec3()
     cdef Vec3 clr
 
+    cdef HitList hit_list = HitList(shapes=[
+        Sphere(center=Vec3(0, 0, -1), radius=0.5),
+        Sphere(center=Vec3(0, -100.5, -1), radius=100),
+    ])
+
     pixels = []
     for j in range(height - 1, -1, -1):
         for i in range(width):
@@ -50,7 +62,7 @@ cpdef write_background(int width, int height):
             v = float(j) / height
 
             r = Ray(origin, lower_left + u * horizontal + v * vertical)
-            clr = color(r)
+            clr = color(r, hit_list)
             pixels.append(Vec3(
                 255.99 * clr.x,
                 255.99 * clr.y,
