@@ -1,0 +1,5 @@
+ray_tracing/__pycache__
+build
+*.so
+*.c
+*.ppm
