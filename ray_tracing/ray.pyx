@@ -82,9 +82,9 @@ cpdef render(int width=200, int height=100, int samples=100):
                 clr += color(r, hit_list)
             clr /= samples
             pixels.append(Vec3(
-                255.99 * clr.x,
-                255.99 * clr.y,
-                255.99 * clr.z,
+                255.99 * clr.x**0.5,
+                255.99 * clr.y**0.5,
+                255.99 * clr.z**0.5,
             ))
 
     write_ppm(
