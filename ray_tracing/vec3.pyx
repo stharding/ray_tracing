@@ -112,3 +112,8 @@ cdef class Vec3:
             self.__class__.__name__ +
             '({}, {}, {})'.format(self.x, self.y, self.z)
         )
+
+    cpdef update_from(self, Vec3 other):
+        self.x = other.x
+        self.y = other.y
+        self.z = other.z

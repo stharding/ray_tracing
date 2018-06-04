@@ -1,9 +1,13 @@
 cdef class HitRecord:
+
+    def __cinit__(self):
+        self.material = Material()
     cdef update_from(self, HitRecord other):
         self.t = other.t
         self.p = other.p
         self.normal = other.normal
         self.normal = other.normal
+        self.material = other.material
 
 
 cdef class Shape:
@@ -12,9 +16,10 @@ cdef class Shape:
         return False
 
 cdef class Sphere(Shape):
-    def __init__(self, Vec3 center, float radius):
+    def __init__(self, Vec3 center, float radius, Material material=None):
         self.center = center
         self.radius = radius
+        self.material = material or Lambertian(Vec3())
 
     cdef bint hit(self, Ray r, float t_min, float t_max, HitRecord rec):
         cdef Vec3 oc = r.origin() - self.center
@@ -31,8 +36,8 @@ cdef class Sphere(Shape):
             rec.t = temp
             rec.p = r.point_at_parameter(rec.t)
             rec.normal = (rec.p - self.center) / self.radius
+            rec.material = self.material
             return True
-
         return False
 
 cdef class HitList(Shape):

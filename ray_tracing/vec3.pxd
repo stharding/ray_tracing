@@ -6,3 +6,4 @@ cdef class Vec3:
     cpdef make_unit_vector(self)
     cpdef float squared_length(self)
     cpdef length(self)
+    cpdef update_from(self, Vec3 other)
