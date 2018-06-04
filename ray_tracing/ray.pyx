@@ -1,3 +1,5 @@
+from random import random
+
 cdef class Ray:
     def __init__(self, Vec3 a=None, Vec3 b=None):
         self.A = a or Vec3()
@@ -41,7 +43,7 @@ cpdef Vec3 color(Ray r, Shape shape):
         t = 0.5 * (unit_direction.y + 1)
         return (1 - t) * Vec3(1, 1, 1) + t * Vec3(0.5, 0.7, 1)
 
-cpdef render(int width, int height):
+cpdef render(int width=200, int height=100, int samples=100):
     cdef float u, v
     cdef Ray r
     cdef Vec3 lower_left = Vec3(-2, -1, -1)
@@ -54,15 +56,20 @@ cpdef render(int width, int height):
         Sphere(center=Vec3(0, 0, -1), radius=0.5),
         Sphere(center=Vec3(0, -100.5, -1), radius=100),
     ])
+    cdef Camera camera = Camera()
 
     pixels = []
     for j in range(height - 1, -1, -1):
         for i in range(width):
-            u = float(i) / width
-            v = float(j) / height
+            clr = Vec3()
+            for _ in range(samples):
+                u = (i + random()) / width
+                v = (j + random()) / height
 
-            r = Ray(origin, lower_left + u * horizontal + v * vertical)
-            clr = color(r, hit_list)
+                r = camera.get_ray(u, v)
+                # r.point_at_parameter(2)
+                clr += color(r, hit_list)
+            clr /= samples
             pixels.append(Vec3(
                 255.99 * clr.x,
                 255.99 * clr.y,

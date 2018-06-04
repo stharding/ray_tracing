@@ -3,6 +3,7 @@ from libc.float cimport FLT_MAX
 from .vec3 cimport Vec3
 from .ppm cimport write_ppm
 from .shape cimport Shape, Sphere, HitList, HitRecord
+from .camera cimport Camera
 
 cdef class Ray:
     cdef public Vec3 A
@@ -13,4 +14,4 @@ cdef class Ray:
 
 
 cpdef Vec3 color(Ray r, Shape shape)
-cpdef render(int width, int height)
+cpdef render(int width=*, int height=*, int samples=*)
