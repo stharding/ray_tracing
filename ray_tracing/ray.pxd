@@ -6,6 +6,7 @@ from .shape cimport Shape, Sphere, HitList, HitRecord
 from .camera cimport Camera
 from .material cimport Lambertian, Metal
 
+
 cdef class Ray:
     cdef public Vec3 A
     cdef public Vec3 B

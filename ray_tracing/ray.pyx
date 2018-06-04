@@ -1,5 +1,6 @@
 from random import random
 
+
 cdef class Ray:
     def __init__(self, Vec3 a=None, Vec3 b=None):
         self.A = a or Vec3()
@@ -46,8 +47,6 @@ cpdef float hit_sphere(Vec3 center, float radius, Ray r):
     return (-b - discriminant**0.5) / (2 * a)
 
 
-
-
 cpdef Vec3 color(Ray r, Shape shape, int depth):
     cdef HitRecord rec = HitRecord()
     cdef Vec3 unit_direction, target, attenuation
@@ -60,8 +59,6 @@ cpdef Vec3 color(Ray r, Shape shape, int depth):
             return attenuation * color(scattered, shape, depth + 1)
         else:
             return Vec3()
-        # target = rec.p + rec.normal + Ray.random_in_unit_sphere()
-        # return 0.5 * color(Ray(rec.p, target - rec.p), shape, depth + 1)
     else:
         unit_direction = r.direction().unit_vector()
         t = 0.5 * (unit_direction.y + 1)
