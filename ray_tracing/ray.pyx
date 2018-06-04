@@ -31,17 +31,29 @@ cpdef float hit_sphere(Vec3 center, float radius, Ray r):
     return (-b - discriminant**0.5) / (2 * a)
 
 
+cdef random_in_unit_sphere():
+    cdef Vec3 p = Vec3()
+    cdef sq_len = 1
+    while sq_len >= 1:
+        p = 2 * Vec3(random(), random(), random()) - Vec3(1, 1, 1)
+        sq_len = p.squared_length()
+
+    return p
+
+
 cpdef Vec3 color(Ray r, Shape shape):
     cdef HitRecord rec = HitRecord()
-    cdef Vec3 unit_direction
+    cdef Vec3 unit_direction, target
     cdef float t
 
     if shape.hit(r, 0, FLT_MAX, rec):
-        return 0.5 * Vec3(rec.normal.x + 1, rec.normal.y + 1, rec.normal.z + 1)
+        target = rec.p + rec.normal + random_in_unit_sphere()
+        return 0.5 * color(Ray(rec.p, target - rec.p), shape)
     else:
         unit_direction = r.direction().unit_vector()
         t = 0.5 * (unit_direction.y + 1)
         return (1 - t) * Vec3(1, 1, 1) + t * Vec3(0.5, 0.7, 1)
+
 
 cpdef render(int width=200, int height=100, int samples=100):
     cdef float u, v
@@ -67,7 +79,6 @@ cpdef render(int width=200, int height=100, int samples=100):
                 v = (j + random()) / height
 
                 r = camera.get_ray(u, v)
-                # r.point_at_parameter(2)
                 clr += color(r, hit_list)
             clr /= samples
             pixels.append(Vec3(
