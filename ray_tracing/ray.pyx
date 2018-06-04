@@ -46,7 +46,7 @@ cpdef Vec3 color(Ray r, Shape shape):
     cdef Vec3 unit_direction, target
     cdef float t
 
-    if shape.hit(r, 0, FLT_MAX, rec):
+    if shape.hit(r, 0.001, FLT_MAX, rec):
         target = rec.p + rec.normal + random_in_unit_sphere()
         return 0.5 * color(Ray(rec.p, target - rec.p), shape)
     else:
