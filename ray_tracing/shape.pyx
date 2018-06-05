@@ -41,8 +41,8 @@ cdef class Sphere(Shape):
         return False
 
 cdef class HitList(Shape):
-    def __init__(self, shapes):
-        self.shapes = shapes
+    def __init__(self, shapes=None):
+        self.shapes = shapes or []
 
     cdef bint hit(self, Ray r, float t_min, float t_max, HitRecord rec):
         cdef Shape shape

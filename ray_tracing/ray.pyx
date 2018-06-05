@@ -67,6 +67,79 @@ cpdef Vec3 color(Ray r, Shape shape, int depth):
         return (1 - t) * Vec3(1, 1, 1) + t * Vec3(0.5, 0.7, 1)
 
 
+cdef HitList random_scene():
+    cdef int n = 500
+    cdef HitList hit_list = HitList()
+    hit_list.shapes.append(Sphere(
+        center=Vec3(0, -1000, 0),
+        radius=1000,
+        material=Lambertian(Vec3(0.5, 0.5, 0.5))
+    ))
+    cdef int a, b
+    cdef float choose_mat
+    cdef Vec3 center
+    for a in range(-11, 11):
+        for b in range(-11, 11):
+            choose_mat = random()
+            center = Vec3(
+                a + 0.9 * random(),
+                0.2,
+                b + 0.9 * random()
+            )
+            # add a diffuse sphere
+            if choose_mat < 0.8:
+                hit_list.shapes.append(
+                    Sphere(
+                        center=center,
+                        radius=0.2,
+                        material=Lambertian(Vec3(
+                            random() * random(),
+                            random() * random(),
+                            random() * random(),
+                        ))
+                    )
+                )
+            # add a metal sphere
+            elif choose_mat < 0.95:
+                hit_list.shapes.append(
+                    Sphere(
+                        center=center,
+                        radius=0.2,
+                        material=Metal(Vec3(
+                            0.5 * (1 + random()),
+                            0.5 * (1 + random()),
+                            0.5 * (1 + random()),
+                        ), 0.5 * random()),
+                    )
+                )
+            # add a glass spere
+            else:
+                hit_list.shapes.append(
+                    Sphere(
+                        center=center,
+                        radius=0.2,
+                        material=Dielectric(1.5)
+                    )
+                )
+    hit_list.shapes += [
+        Sphere(
+            center=Vec3(0, 1, 0),
+            radius=1,
+            material=Dielectric(1.5)
+        ),
+        Sphere(
+            center=Vec3(-4, 1, 0),
+            radius=1,
+            material=Lambertian(Vec3(0.4, 0.2, 0.1))
+        ),
+        Sphere(
+            center=Vec3(4, 1, 0),
+            radius=1,
+            material=Metal(Vec3(0.7, 0.6, 0.5), 0)
+        )
+    ]
+    return hit_list
+
 cpdef render(int width=200, int height=100, int samples=100):
     cdef float u, v
     cdef Ray r
@@ -77,35 +150,9 @@ cpdef render(int width=200, int height=100, int samples=100):
     cdef Vec3 clr
     cdef float radius = cos(pi / 4)
 
-    cdef HitList hit_list = HitList(shapes=[
-        Sphere(
-            center=Vec3(0, 0, -1),
-            radius=0.5,
-            material=Lambertian(Vec3(0.1, 0.2, 0.5))
-        ),
-        Sphere(
-            center=Vec3(0, -100.5, -1),
-            radius=100,
-            material=Lambertian(Vec3(0.8, 0.8))
-        ),
-        Sphere(
-            center=Vec3(1, 0, -1),
-            radius=0.5,
-            material=Metal(Vec3(0.8, 0.6, 0.2), 0)
-        ),
-        Sphere(
-            center=Vec3(-1, 0, -1),
-            radius=0.5,
-            material=Dielectric(1.5)
-        ),
-        Sphere(
-            center=Vec3(-1, 0, -1),
-            radius=-0.45,
-            material=Dielectric(1.5)
-        ),
-    ])
-    cdef Vec3 look_from = Vec3(3, 1, 3)
-    cdef Vec3 look_at = Vec3(0, 0, -1)
+    cdef HitList hit_list = random_scene()
+    cdef Vec3 look_from = Vec3(13, 2, 3)
+    cdef Vec3 look_at = Vec3(0, 0, 0)
     cdef float focus_dist = 10
     cdef Camera camera = Camera(
         look_from=look_from,
