@@ -8,10 +8,8 @@ from .material cimport Lambertian, Metal, Dielectric
 
 
 cdef class Ray:
-    cdef public Vec3 A
-    cdef public Vec3 B
-    cpdef Vec3 origin(self)
-    cpdef Vec3 direction(self)
+    cdef public Vec3 origin
+    cdef public Vec3 direction
     cpdef Vec3 point_at_parameter(self, float t)
     cpdef update_from(self, Ray other)
 

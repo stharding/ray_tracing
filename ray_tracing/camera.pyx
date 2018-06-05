@@ -24,7 +24,7 @@ cdef class Camera:
         cdef float half_width = aspect_ratio * half_height
 
         self.lens_radius = aperture / 2
-        self.w = (look_from - look_at).unit_vector()
+        self.w = (<Vec3>(look_from - look_at)).unit_vector()
         self.u = vup.cross(self.w).unit_vector()
         self.v = self.w.cross(self.u)
         self.origin = look_from

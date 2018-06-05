@@ -1,36 +1,29 @@
-from libc.math cimport pi, cos
+from libc.math cimport pi, cos, sqrt
 
 from random import random
 
-
 cdef class Ray:
-    def __init__(self, Vec3 a=None, Vec3 b=None):
-        self.A = a or Vec3()
-        self.B = b or Vec3()
-
-    cpdef Vec3 origin(self):
-        return self.A
-
-    cpdef Vec3 direction(self):
-        return self.B
+    def __init__(self, Vec3 origin=None, Vec3 direction=None):
+        self.origin = origin or Vec3()
+        self.direction = direction or Vec3()
 
     cpdef Vec3 point_at_parameter(self, float t):
-        return self.A + t * self.B
+        return self.origin + t * self.direction
 
     cpdef update_from(self, Ray other):
-        self.A = other.A
-        self.B = other.B
+        self.origin = other.origin
+        self.direction = other.direction
 
     def __repr__(self):
         return (
             self.__class__.__name__ +
-            '(' + repr(self.A) + ', ' + repr(self.B) + ')'
+            '(' + repr(self.origin) + ', ' + repr(self.direction) + ')'
         )
 
     @staticmethod
     cdef Vec3 random_in_unit_sphere():
         cdef Vec3 p = Vec3()
-        cdef sq_len = 1
+        cdef float sq_len = 1
         while sq_len >= 1:
             p = 2 * Vec3(random(), random(), random()) - Vec3(1, 1, 1)
             sq_len = p.squared_length()
@@ -39,14 +32,14 @@ cdef class Ray:
 
 
 cpdef float hit_sphere(Vec3 center, float radius, Ray r):
-    cdef Vec3 oc = r.origin() - center
-    cdef float a = r.direction().dot(r.direction())
-    cdef float b = 2 * oc.dot(r.direction())
+    cdef Vec3 oc = r.origin - center
+    cdef float a = r.direction.dot(r.direction)
+    cdef float b = 2 * oc.dot(r.direction)
     cdef float c = oc.dot(oc) - radius ** 2
     cdef float discriminant = b ** 2 - 4 * a * c
     if discriminant < 0:
         return -1
-    return (-b - discriminant**0.5) / (2 * a)
+    return (-b - sqrt(discriminant)) / (2 * a)
 
 
 cpdef Vec3 color(Ray r, Shape shape, int depth):
@@ -62,7 +55,7 @@ cpdef Vec3 color(Ray r, Shape shape, int depth):
         else:
             return Vec3()
     else:
-        unit_direction = r.direction().unit_vector()
+        unit_direction = r.direction.unit_vector()
         t = 0.5 * (unit_direction.y + 1)
         return (1 - t) * Vec3(1, 1, 1) + t * Vec3(0.5, 0.7, 1)
 
@@ -176,9 +169,9 @@ cpdef render(int width=200, int height=100, int samples=100):
                 clr += color(r, hit_list, 0)
             clr /= samples
             pixels.append(Vec3(
-                255.99 * clr.x**0.5,
-                255.99 * clr.y**0.5,
-                255.99 * clr.z**0.5,
+                255.99 * sqrt(clr.x),
+                255.99 * sqrt(clr.y),
+                255.99 * sqrt(clr.z),
             ))
         print '{:.2f}% complete'.format(100 * (height - j) / float(height))
 

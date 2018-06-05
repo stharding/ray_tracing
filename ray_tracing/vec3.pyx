@@ -4,14 +4,14 @@ cdef class Vec3:
         self.y = y
         self.z = z
 
-    def __add__(self, Vec3 other):
+    def __add__(Vec3 self, Vec3 other):
         return Vec3(
             self.x + other.x,
             self.y + other.y,
             self.z + other.z,
         )
 
-    def __sub__(self, Vec3 other):
+    def __sub__(Vec3 self, Vec3 other):
         return Vec3(
             self.x - other.x,
             self.y - other.y,
@@ -73,29 +73,29 @@ cdef class Vec3:
     def __matmul__(first, second):
         return Vec3.dot(first, second)
 
-    cpdef float dot(self, other):
+    cdef float dot(self, Vec3 other) nogil:
         return self.x * other.x + self.y * other.y + self.z * other.z
 
-    cpdef Vec3 cross(self, other):
+    cdef Vec3 cross(self, Vec3 other):
         return Vec3(
             self.y * other.z - self.z * other.y,
             -(self.x * other.z - self.z * other.x),
             self.x * other.y - self.y * other.x,
         )
 
-    cpdef Vec3 unit_vector(self):
+    cdef Vec3 unit_vector(self):
         return self / self.length()
 
-    cpdef make_unit_vector(self):
+    cdef void make_unit_vector(self) nogil:
         cdef float k = 1 / self.length()
         self.x *= k
         self.y *= k
         self.z *= k
 
-    cpdef length(self):
+    cdef float length(self) nogil:
         return self.squared_length() ** 0.5
 
-    cpdef float squared_length(self):
+    cdef float squared_length(self) nogil:
         return self.x ** 2 + self.y ** 2 + self.z ** 2
 
     def __eq__(self, other):
@@ -116,7 +116,7 @@ cdef class Vec3:
             '({}, {}, {})'.format(self.x, self.y, self.z)
         )
 
-    cpdef update_from(self, Vec3 other):
+    cdef void update_from(self, Vec3 other) nogil:
         self.x = other.x
         self.y = other.y
         self.z = other.z

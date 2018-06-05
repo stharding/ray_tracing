@@ -58,13 +58,13 @@ cdef class Metal(Material):
                       Vec3 attenuation,
                       Ray scattered):
 
-        cdef Vec3 reflected = reflect(r_in.direction(), rec.normal)
+        cdef Vec3 reflected = reflect(r_in.direction, rec.normal)
         if self.fuzz == 0:
             scattered.update_from(Ray(rec.p, reflected))
         else:
             scattered.update_from(Ray(rec.p, reflected + self.fuzz * Ray.random_in_unit_sphere()))
         attenuation.update_from(self.albedo)
-        return scattered.direction().dot(rec.normal) > 0
+        return scattered.direction.dot(rec.normal) > 0
 
 cdef class Dielectric(Material):
     def __init__(self, float refraction_index):
@@ -77,24 +77,24 @@ cdef class Dielectric(Material):
                       Ray scattered):
 
         cdef Vec3 outward_normal
-        cdef Vec3 reflected = reflect(r_in.direction(), rec.normal)
+        cdef Vec3 reflected = reflect(r_in.direction, rec.normal)
         cdef float ni_over_nt
         attenuation.update_from(Vec3(1, 1, 1))
         cdef Vec3 refracted = Vec3()
         cdef float reflect_prob
         cdef float cosine
 
-        if r_in.direction().dot(rec.normal) > 0:
+        if r_in.direction.dot(rec.normal) > 0:
             outward_normal = -rec.normal
             ni_over_nt = self.refraction_index
-            cosine = self.refraction_index * r_in.direction().dot(
-                rec.normal) / r_in.direction().length()
+            cosine = self.refraction_index * r_in.direction.dot(
+                rec.normal) / r_in.direction.length()
         else:
             outward_normal = rec.normal
             ni_over_nt = 1 / self.refraction_index
-            cosine = -r_in.direction().dot(rec.normal) / r_in.direction().length()
+            cosine = -r_in.direction.dot(rec.normal) / r_in.direction.length()
 
-        if refract(r_in.direction(), outward_normal, ni_over_nt, refracted):
+        if refract(r_in.direction, outward_normal, ni_over_nt, refracted):
             reflect_prob = schlick(cosine, self.refraction_index)
         else:
             reflect_prob = 1
