@@ -180,6 +180,7 @@ cpdef render(int width=200, int height=100, int samples=100):
                 255.99 * clr.y**0.5,
                 255.99 * clr.z**0.5,
             ))
+        print '{:.2f}% complete'.format(100 * (height - j) / float(height))
 
     write_ppm(
         filename=b'background.ppm',
