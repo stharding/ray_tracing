@@ -4,7 +4,7 @@ from .vec3 cimport Vec3
 from .ppm cimport write_ppm
 from .shape cimport Shape, Sphere, HitList, HitRecord
 from .camera cimport Camera
-from .material cimport Lambertian, Metal
+from .material cimport Lambertian, Metal, Dielectric
 
 
 cdef class Ray:

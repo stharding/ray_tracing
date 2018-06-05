@@ -67,6 +67,9 @@ cdef class Vec3:
     def __div__(first, second):
         return Vec3.__truediv__(first, second)
 
+    def __neg__(self):
+        return -1 * self
+
     def __matmul__(first, second):
         return Vec3.dot(first, second)
 

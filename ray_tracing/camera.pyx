@@ -1,14 +1,26 @@
+from libc.math cimport pi, tan
+
 cdef class Camera:
     def __init__(self,
-                lower_left_corner=None,
-                horizontal=None,
-                vertical=None,
-                origin=None):
+                 Vec3 look_from,
+                 Vec3 look_at,
+                 Vec3 vup,
+                 float vfov,
+                 float aspect_ratio):
 
-        self.lower_left_corner = lower_left_corner or Vec3(-2, -1, -1)
-        self.horizontal = horizontal or Vec3(x=4)
-        self.vertical = vertical or Vec3(y=2)
-        self.origin = origin or Vec3()
+        cdef Vec3 u, v, w
+        cdef float theta = vfov * pi / 180
+        cdef float half_height = tan(theta / 2)
+        cdef float half_width = aspect_ratio * half_height
+
+        w = (look_from - look_at).unit_vector()
+        u = vup.cross(w).unit_vector()
+        v = w.cross(u)
+
+        self.origin = look_from
+        self.lower_left_corner = self.origin - half_width * u - half_height * v - w
+        self.horizontal = 2 * half_width * u
+        self.vertical = 2 * half_height * v
 
     cdef Ray get_ray(self, float u, float v):
         return Ray(

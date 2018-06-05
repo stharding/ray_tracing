@@ -1,3 +1,5 @@
+from libc.math cimport pi, cos
+
 from random import random
 
 
@@ -73,12 +75,13 @@ cpdef render(int width=200, int height=100, int samples=100):
     cdef Vec3 vertical = Vec3(y=2)
     cdef Vec3 origin = Vec3()
     cdef Vec3 clr
+    cdef float radius = cos(pi / 4)
 
     cdef HitList hit_list = HitList(shapes=[
         Sphere(
             center=Vec3(0, 0, -1),
             radius=0.5,
-            material=Lambertian(Vec3(0.8, 0.3, 0.3))
+            material=Lambertian(Vec3(0.4, 0.3, 0.8))
         ),
         Sphere(
             center=Vec3(0, -100.5, -1),
@@ -88,15 +91,26 @@ cpdef render(int width=200, int height=100, int samples=100):
         Sphere(
             center=Vec3(1, 0, -1),
             radius=0.5,
-            material=Metal(Vec3(0.8, 0.8, 0.8), 0.3)
+            material=Metal(Vec3(0.6, 0.6, 0.8), 0)
         ),
         Sphere(
             center=Vec3(-1, 0, -1),
             radius=0.5,
-            material=Metal(Vec3(0.8, 0.8, 0.8), 1)
+            material=Dielectric(1.5)
+        ),
+        Sphere(
+            center=Vec3(-1, 0, -1),
+            radius=-0.45,
+            material=Dielectric(1.5)
         ),
     ])
-    cdef Camera camera = Camera()
+    cdef Camera camera = Camera(
+        look_from=Vec3(-2, 2, 1),
+        look_at=Vec3(0, 0, -1),
+        vup=Vec3(0, 1, 0),
+        vfov=20,
+        aspect_ratio=width / float(height),
+    )
 
     pixels = []
     for j in range(height - 1, -1, -1):
