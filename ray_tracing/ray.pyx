@@ -81,7 +81,7 @@ cpdef render(int width=200, int height=100, int samples=100):
         Sphere(
             center=Vec3(0, 0, -1),
             radius=0.5,
-            material=Lambertian(Vec3(0.4, 0.3, 0.8))
+            material=Lambertian(Vec3(0.1, 0.2, 0.5))
         ),
         Sphere(
             center=Vec3(0, -100.5, -1),
@@ -91,7 +91,7 @@ cpdef render(int width=200, int height=100, int samples=100):
         Sphere(
             center=Vec3(1, 0, -1),
             radius=0.5,
-            material=Metal(Vec3(0.6, 0.6, 0.8), 0)
+            material=Metal(Vec3(0.8, 0.6, 0.2), 0)
         ),
         Sphere(
             center=Vec3(-1, 0, -1),
@@ -104,12 +104,17 @@ cpdef render(int width=200, int height=100, int samples=100):
             material=Dielectric(1.5)
         ),
     ])
+    cdef Vec3 look_from = Vec3(3, 1, 3)
+    cdef Vec3 look_at = Vec3(0, 0, -1)
+    cdef float focus_dist = 10
     cdef Camera camera = Camera(
-        look_from=Vec3(-2, 2, 1),
-        look_at=Vec3(0, 0, -1),
+        look_from=look_from,
+        look_at=look_at,
         vup=Vec3(0, 1, 0),
         vfov=20,
         aspect_ratio=width / float(height),
+        aperture=0.1,
+        focus_dist=focus_dist
     )
 
     pixels = []
