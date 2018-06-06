@@ -1,23 +1,20 @@
 import multiprocessing
 
 from multiprocessing import Queue
-from time import time
 
 from .ray import render as ray_render
-from .ray import post_process
+from .ray import post_process, random_scene
 from .ppm import write_ppm
 
-def render(width, height, rays=100, jobs=1, rseed=None):
+def render(width, height, rays=100, jobs=1):
     out_q = Queue()
-    if rseed is None:
-        rseed = int(time())
+    scene = random_scene()
 
     def render_some(rays, queue):
-        pixels = ray_render(width, height, rays, rseed)
+        pixels = ray_render(width, height, rays, scene)
         print 'putting pixels in the queue'
         queue.put(pixels)
         print 'DONE ...'
-
 
     procs = []
     for j in range(jobs):

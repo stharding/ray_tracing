@@ -1,6 +1,6 @@
 from libc.math cimport pi, cos, sqrt
 
-from random import random, seed
+from random import random
 
 cdef class Ray:
     def __init__(self, Vec3 origin=None, Vec3 direction=None):
@@ -60,7 +60,7 @@ cpdef Vec3 color(Ray r, Shape shape, int depth):
         return (1 - t) * Vec3(1, 1, 1) + t * Vec3(0.5, 0.7, 1)
 
 
-cdef HitList random_scene():
+cpdef HitList random_scene():
     cdef int n = 500
     cdef HitList hit_list = HitList()
     hit_list.shapes.append(Sphere(
@@ -133,8 +133,7 @@ cdef HitList random_scene():
     ]
     return hit_list
 
-cpdef render(int width=200, int height=100, int samples=100, rseed=None):
-    seed(rseed)
+cpdef render(int width=200, int height=100, int samples=100, hitlist=None):
     cdef float u, v
     cdef Ray r
     cdef Vec3 lower_left = Vec3(-2, -1, -1)
@@ -144,7 +143,12 @@ cpdef render(int width=200, int height=100, int samples=100, rseed=None):
     cdef Vec3 clr
     cdef float radius = cos(pi / 4)
 
-    cdef HitList hit_list = random_scene()
+    cdef HitList hit_list
+    if hitlist is None:
+        hit_list = random_scene()
+    else:
+        hit_list = hitlist
+
     cdef Vec3 look_from = Vec3(13, 2, 3)
     cdef Vec3 look_at = Vec3(0, 0, 0)
     cdef float focus_dist = 10
