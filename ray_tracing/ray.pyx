@@ -1,6 +1,6 @@
 from libc.math cimport pi, cos, sqrt
 
-from random import random
+from random import random, seed
 
 cdef class Ray:
     def __init__(self, Vec3 origin=None, Vec3 direction=None):
@@ -133,7 +133,8 @@ cdef HitList random_scene():
     ]
     return hit_list
 
-cpdef render(int width=200, int height=100, int samples=100):
+cpdef render(int width=200, int height=100, int samples=100, rseed=None):
+    seed(rseed)
     cdef float u, v
     cdef Ray r
     cdef Vec3 lower_left = Vec3(-2, -1, -1)
@@ -175,9 +176,13 @@ cpdef render(int width=200, int height=100, int samples=100):
             ))
         print '{:.2f}% complete'.format(100 * (height - j) / float(height))
 
-    write_ppm(
-        filename=b'background.ppm',
-        pixels=pixels,
-        width=width,
-        height=height,
-    )
+    return pixels
+
+cpdef post_process(parallel_pixels):
+    cdef Vec3 pixel
+    cdef int num_lists = len(parallel_pixels)
+    out = []
+    for group in zip(*parallel_pixels):
+        pixel = reduce(Vec3.__add__, group) / num_lists
+        out.append(pixel)
+    return out

@@ -4,5 +4,5 @@ from Cython.Build import cythonize
 
 setup(
     name='Ray Tracer',
-    ext_modules=cythonize("ray_tracing/*.pyx",  annotate=True)
+    ext_modules=cythonize("ray_tracing/*.pyx")
 )

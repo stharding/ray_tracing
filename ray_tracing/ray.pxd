@@ -18,4 +18,4 @@ cdef class Ray:
 
 
 cpdef Vec3 color(Ray r, Shape shape, int depth)
-cpdef render(int width=*, int height=*, int samples=*)
+cpdef render(int width=*, int height=*, int samples=*, rseed=*)
