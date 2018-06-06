@@ -1,5 +1,6 @@
 ray_tracing/__pycache__
 build
+*.html
 *.so
 *.c
 *.ppm
