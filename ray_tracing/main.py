@@ -34,7 +34,6 @@ def render(width, height, rays=100, jobs=1):
 
     print 'waiting for the procs to finish', procs
     for p in procs:
-        print p
         p.join()
 
 
