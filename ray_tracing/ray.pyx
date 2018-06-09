@@ -60,9 +60,48 @@ cpdef Vec3 color(Ray r, Shape shape, int depth):
         return (1 - t) * Vec3(1, 1, 1) + t * Vec3(0.5, 0.7, 1)
 
 
+cdef bint intersects(Sphere sphere1, Sphere sphere2):
+    dst = sqrt((sphere1.center.x - sphere2.center.x)**2 +
+               (sphere1.center.z - sphere2.center.z)**2)
+    if dst < sphere1.radius + sphere2.radius:
+        return True
+    return False
+
+
+cdef random_center(HitList hit_list, a, b):
+    bad = False
+    a = a + random() * 0.9
+    b = b + random() * 0.9
+    if intersects(hit_list.shapes[0], Sphere(Vec3(a, 0.2, b), 0.2)):
+        bad = True
+    if intersects(hit_list.shapes[1], Sphere(Vec3(a, 0.2, b), 0.2)):
+        bad = True
+    if intersects(hit_list.shapes[2], Sphere(Vec3(a, 0.2, b), 0.2)):
+        bad = True
+
+    return Vec3(a, 0.2, b), bad
+
 cpdef HitList random_scene():
     cdef int n = 500
     cdef HitList hit_list = HitList()
+
+    hit_list.shapes = [
+        Sphere(
+            center=Vec3(0, 1, 0),
+            radius=1,
+            material=Dielectric(1.5)
+        ),
+        Sphere(
+            center=Vec3(-4, 1, 0),
+            radius=1,
+            material=Lambertian(Vec3(0.4, 0.2, 0.1))
+        ),
+        Sphere(
+            center=Vec3(4, 1, 0),
+            radius=1,
+            material=Metal(Vec3(0.7, 0.6, 0.5), 0)
+        )
+    ]
     hit_list.shapes.append(Sphere(
         center=Vec3(0, -1000, 0),
         radius=1000,
@@ -71,14 +110,13 @@ cpdef HitList random_scene():
     cdef int a, b
     cdef float choose_mat
     cdef Vec3 center
+
     for a in range(-11, 11):
         for b in range(-11, 11):
             choose_mat = random()
-            center = Vec3(
-                a + 0.9 * random(),
-                0.2,
-                b + 0.9 * random()
-            )
+            center, bad = random_center(hit_list, a, b)
+            if bad:
+                continue
             # add a diffuse sphere
             if choose_mat < 0.8:
                 hit_list.shapes.append(
@@ -114,23 +152,7 @@ cpdef HitList random_scene():
                         material=Dielectric(1.5)
                     )
                 )
-    hit_list.shapes += [
-        Sphere(
-            center=Vec3(0, 1, 0),
-            radius=1,
-            material=Dielectric(1.5)
-        ),
-        Sphere(
-            center=Vec3(-4, 1, 0),
-            radius=1,
-            material=Lambertian(Vec3(0.4, 0.2, 0.1))
-        ),
-        Sphere(
-            center=Vec3(4, 1, 0),
-            radius=1,
-            material=Metal(Vec3(0.7, 0.6, 0.5), 0)
-        )
-    ]
+    print 'returning hit list'
     return hit_list
 
 cpdef render(int width=200, int height=100, int samples=100, hitlist=None):
